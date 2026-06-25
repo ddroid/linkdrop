@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>linkdrop</title>
+  <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #70c5ce;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: system-ui, sans-serif;
+    color: #333;
+  }
+  h1 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  p { font-size: 0.875rem; opacity: 0.8; margin-bottom: 1rem; }
+  canvas {
+    background: #ded895;
+    border: 3px solid #555;
+    display: block;
+    max-width: 100%;
+  }
+  .hint { margin-top: 0.75rem; font-size: 0.8rem; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <h1>linkdrop</h1>
+  <p>Push HTML, get a link. You're at the home base.</p>
+  <canvas id="game" width="360" height="480"></canvas>
+  <p class="hint">Space / click / tap to flap</p>
+  <script>
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  let bird = { x: 60, y: H / 2, vy: 0, r: 14 };
+  let pipes = [];
+  let frame = 0;
+  let score = 0;
+  let alive = true;
+  let started = false;
+
+  function reset() {
+    bird = { x: 60, y: H / 2, vy: 0, r: 14 };
+    pipes = [];
+    frame = 0;
+    score = 0;
+    alive = true;
+    started = false;
+  }
+
+  function flap() {
+    if (!alive) { reset(); return; }
+    started = true;
+    bird.vy = -5.5;
+  }
+
+  function spawnPipe() {
+    const gap = 110;
+    const top = 60 + Math.random() * (H - gap - 120);
+    pipes.push({ x: W, top, gap });
+  }
+
+  function update() {
+    if (!started) return;
+    bird.vy += 0.35;
+    bird.y += bird.vy;
+
+    if (frame % 90 === 0) spawnPipe();
+    frame++;
+
+    for (const p of pipes) {
+      p.x -= 2.5;
+      if (p.x + 50 < bird.x && !p.passed) {
+        p.passed = true;
+        score++;
+      }
+      if (
+        bird.x + bird.r > p.x && bird.x - bird.r < p.x + 50 &&
+        (bird.y - bird.r < p.top || bird.y + bird.r > p.top + p.gap)
+      ) alive = false;
+    }
+    pipes = pipes.filter(p => p.x > -60);
+
+    if (bird.y + bird.r >= H || bird.y - bird.r <= 0) alive = false;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#ded895';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = '#73bf2e';
+    for (const p of pipes) {
+      ctx.fillRect(p.x, 0, 50, p.top);
+      ctx.fillRect(p.x, p.top + p.gap, 50, H - p.top - p.gap);
+    }
+
+    ctx.fillStyle = '#f4c430';
+    ctx.beginPath();
+    ctx.arc(bird.x, bird.y, bird.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.arc(bird.x + 6, bird.y - 4, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 28px system-ui';
+    ctx.fillText(String(score), W / 2 - 8, 48);
+
+    if (!started) {
+      ctx.font = '16px system-ui';
+      ctx.fillText('click to start', W / 2 - 52, H / 2);
+    }
+    if (!alive) {
+      ctx.font = '20px system-ui';
+      ctx.fillText('game over — click to retry', W / 2 - 108, H / 2 + 30);
+    }
+  }
+
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('keydown', e => { if (e.code === 'Space') flap(); });
+  canvas.addEventListener('click', flap);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); flap(); }, { passive: false });
+
+  loop();
+  </script>
+</body>
+</html>
