@@ -1,0 +1,101 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux: ubuntu-22.04 ships an older glibc (2.35) than 24.04, so the
+          # binary runs on a wider range of distros. rustls-tls means no OpenSSL
+          # dependency — the only dynamic dep is glibc.
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            cross: false
+          - os: ubuntu-22.04
+            target: aarch64-unknown-linux-gnu
+            cross: true
+          # macOS: Intel + Apple Silicon
+          - os: macos-13
+            target: x86_64-apple-darwin
+            cross: false
+          - os: macos-14
+            target: aarch64-apple-darwin
+            cross: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-${{ matrix.target }}
+
+      # C cross-toolchain for aarch64-linux (rusqlite bundles SQLite from C).
+      - name: Install aarch64-linux cross toolchain
+        if: matrix.cross
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Build
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
+        run: cargo build --release --locked -p linkdrop-cli --target ${{ matrix.target }}
+
+      - name: Strip
+        working-directory: target/${{ matrix.target }}/release
+        run: strip linkdrop || true
+
+      - name: Package
+        run: |
+          artifact="linkdrop-${{ matrix.target }}.tar.gz"
+          tar -C target/${{ matrix.target }}/release -czf "$artifact" linkdrop
+          echo "artifact=$artifact" >> "$GITHUB_ENV"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linkdrop-${{ matrix.target }}
+          path: linkdrop-${{ matrix.target }}.tar.gz
+          if-no-files-found: error
+
+  release:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate checksums
+        working-directory: artifacts
+        run: |
+          sha256sum linkdrop-*.tar.gz > sha256sums.txt
+          cat sha256sums.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/linkdrop-*.tar.gz
+            artifacts/sha256sums.txt
+          generate_release_notes: true
+          fail_on_unmatched_files: true

@@ -39,7 +39,7 @@ Response:
 ```json
 {
   "slug": "my-preview",
-  "url": "https://link.ddroid.dev/my-preview",
+  "url": "https://sub.domain.com/my-preview",
   "created_at": "2026-06-25T12:00:00Z",
   "expires_at": null,
   "size_bytes": 1234
@@ -61,10 +61,10 @@ Serves HTML (no auth).
 ## Dokploy
 
 1. New application → Docker / Dockerfile from this repo
-2. Domain: `link.ddroid.dev`
+2. Domain: `sub.domain.com`
 3. Port: `8080`
 4. Volume: mount `/data`
-5. Env: `LINKDROP_TOKEN`, `LINKDROP_URL=https://link.ddroid.dev`
+5. Env: `LINKDROP_TOKEN`, `LINKDROP_URL=https://sub.domain.com`
 
 ## TTL format
 

@@ -1,11 +1,11 @@
 ---
 name: linkdrop
-description: Push HTML files to linkdrop and get shareable URLs at link.ddroid.dev. Use when publishing HTML previews, sharing agent-generated pages, deploying static HTML for review, or when the user mentions linkdrop, link.ddroid.dev, or pushing HTML to a URL.
+description: Push HTML files to linkdrop and get shareable URLs at sub.domain.com. Use when publishing HTML previews, sharing agent-generated pages, deploying static HTML for review, or when the user mentions linkdrop, sub.domain.com, or pushing HTML to a URL.
 ---
 
 # linkdrop
 
-Push single HTML files to `https://link.ddroid.dev/<slug>` for browser viewing.
+Push single HTML files to `https://sub.domain.com/<slug>` for browser viewing.
 
 ## Prerequisites
 
@@ -13,14 +13,14 @@ One-time setup (config file or env — not per command):
 
 ```toml
 # ~/.config/linkdrop/config.toml
-url = "https://link.ddroid.dev"
+url = "https://sub.domain.com"
 token = "your-token"
 ```
 
 Or:
 
 ```bash
-export LINKDROP_URL=https://link.ddroid.dev
+export LINKDROP_URL=https://sub.domain.com
 export LINKDROP_TOKEN=your-token
 ```
 
@@ -60,7 +60,7 @@ linkdrop delete my-preview
 
 - Single HTML file only (inline CSS/JS OK; no asset folders)
 - Max 5 MB per upload
-- Root `https://link.ddroid.dev/` is a built-in Flappy Bird page — not user-uploadable
+- Root `https://sub.domain.com/` is a built-in Flappy Bird page — not user-uploadable
 
 ## Error handling
 

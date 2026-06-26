@@ -5,7 +5,7 @@ use serde::Deserialize;
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "linkdrop", about = "Push HTML and get a shareable link")]
+#[command(name = "linkdrop", version, about = "Push HTML and get a shareable link")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
