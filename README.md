@@ -43,20 +43,40 @@ export LINKDROP_TOKEN=your-token-here
 ### Option A — prebuilt binary (no Rust toolchain needed)
 
 One-liner; downloads the right binary for your platform from GitHub Releases
-and installs it to `/usr/bin/linkdrop`:
+and installs it to `~/.local/bin/linkdrop` (no sudo required):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ddroid/linkdrop/main/install.sh | sh
 ```
 
-Install elsewhere or pin a version:
+If `~/.local/bin` isn't on your `PATH`, the script prints the exact `export`
+line to add to your shell rc.
+
+Install to a system directory or pin a version:
 
 ```bash
+# system-wide install to /usr/bin (run under sudo, or pass --system)
+sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/ddroid/linkdrop/main/install.sh)"
+# or:
+curl -fsSL https://raw.githubusercontent.com/ddroid/linkdrop/main/install.sh | sudo sh
+
 # custom install dir
 curl -fsSL https://raw.githubusercontent.com/ddroid/linkdrop/main/install.sh | sh -s -- --bindir /usr/local/bin
 
 # specific release tag
 curl -fsSL https://raw.githubusercontent.com/ddroid/linkdrop/main/install.sh | sh -s -- --tag v0.1.0
+```
+
+Running under `sudo` defaults the binary to `/usr/bin`. The **agent skill**
+always goes to the *invoking* user's `~/.agents/skills/linkdrop/` (not root's),
+and is written as that user so the files aren't root-owned.
+
+The installer also offers to install the **linkdrop agent skill** to
+`~/.agents/skills/linkdrop/` (it prompts Y/n when run interactively). To do it
+non-interactively, pass `--skill` (or `--no-skill` to skip):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ddroid/linkdrop/main/install.sh | sh -s -- --skill
 ```
 
 Prebuilt binaries are published for:
@@ -72,7 +92,8 @@ they run on most modern glibc-based distros. Intel Macs are not built
 explicitly — Apple Silicon Macs can run x86_64 builds via Rosetta 2 if needed.
 Downloads are verified against a published `sha256sums.txt`.
 
-Uninstall a prebuilt install: `sudo rm /usr/bin/linkdrop`.
+Uninstall: remove the binary (`rm ~/.local/bin/linkdrop` or `sudo rm /usr/bin/linkdrop`)
+and, if installed, the skill dir (`rm -rf ~/.agents/skills/linkdrop`).
 
 ### Option B — build from source
 
