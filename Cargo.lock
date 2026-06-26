@@ -704,7 +704,7 @@ dependencies = [
 
 [[package]]
 name = "linkdrop-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -717,7 +717,7 @@ dependencies = [
 
 [[package]]
 name = "linkdrop-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -731,7 +731,7 @@ dependencies = [
 
 [[package]]
 name = "linkdrop-server"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "axum",
