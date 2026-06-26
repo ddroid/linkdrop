@@ -24,10 +24,9 @@ jobs:
           - os: ubuntu-22.04
             target: aarch64-unknown-linux-gnu
             cross: true
-          # macOS: Intel + Apple Silicon
-          - os: macos-13
-            target: x86_64-apple-darwin
-            cross: false
+          # macOS: Apple Silicon only. Intel Macs (macos-13) are being phased
+          # out by GitHub and have long runner queue times; Apple Silicon Macs
+          # can still run x86_64 binaries via Rosetta 2 if needed.
           - os: macos-14
             target: aarch64-apple-darwin
             cross: false

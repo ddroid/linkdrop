@@ -65,12 +65,12 @@ Prebuilt binaries are published for:
 |----------|-------|
 | Linux x86_64 | `linkdrop-x86_64-unknown-linux-gnu.tar.gz` |
 | Linux arm64 | `linkdrop-aarch64-unknown-linux-gnu.tar.gz` |
-| macOS Intel | `linkdrop-x86_64-apple-darwin.tar.gz` |
 | macOS Apple Silicon | `linkdrop-aarch64-apple-darwin.tar.gz` |
 
 The Linux binaries use `rustls-tls` and depend only on glibc (no OpenSSL), so
-they run on most modern glibc-based distros. Downloads are verified against a
-published `sha256sums.txt`.
+they run on most modern glibc-based distros. Intel Macs are not built
+explicitly — Apple Silicon Macs can run x86_64 builds via Rosetta 2 if needed.
+Downloads are verified against a published `sha256sums.txt`.
 
 Uninstall a prebuilt install: `sudo rm /usr/bin/linkdrop`.
 
