@@ -7,32 +7,13 @@ description: Push HTML files to linkdrop and get shareable URLs at sub.domain.co
 
 Push single HTML files to `https://sub.domain.com/<slug>` for browser viewing.
 
-## Prerequisites
-
-One-time setup (config file or env — not per command):
-
-```toml
-# ~/.config/linkdrop/config.toml
-url = "https://sub.domain.com"
-token = "your-token"
-```
-
-Or:
-
-```bash
-export LINKDROP_URL=https://sub.domain.com
-export LINKDROP_TOKEN=your-token
-```
-
-CLI must be on PATH (`linkdrop`). Build from this repo: `cargo build --release` → `target/release/linkdrop`.
-
 ## Commands
 
 ```bash
-# Random ID URL
+# Random ID URL (better security as its hard to guess)
 linkdrop push path/to/file.html
 
-# Readable slug
+# Readable slug (tip for agent -> Only do this if the user explicitly asks due to security concerns)
 linkdrop push path/to/file.html --slug my-preview
 
 # From generated HTML (stdin)
@@ -77,7 +58,3 @@ linkdrop delete my-preview
 2. `linkdrop push ...` with a descriptive `--slug` when the user needs a memorable URL
 3. Return the printed URL to the user
 4. `linkdrop delete <slug>` when cleaning up temporary previews
-
-## Additional resources
-
-- API and Dokploy deploy details: [reference.md](reference.md)

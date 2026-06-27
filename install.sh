@@ -208,9 +208,7 @@ fi
 if [ "$SKILL" = 1 ]; then
   echo "==> installing agent skill -> $SKILL_DIR"
   $AS_USER mkdir -p "$SKILL_DIR"
-  for f in SKILL.md reference.md; do
-    $AS_USER curl -fsSL -o "$SKILL_DIR/$f" "${RAW_BASE}/.cursor/skills/linkdrop/$f"
-  done
+  $AS_USER curl -fsSL -o "$SKILL_DIR/SKILL.md" "${RAW_BASE}/.cursor/skills/linkdrop/SKILL.md"
   echo "    installed: $(ls -1 "$SKILL_DIR")"
   echo "    the skill is available to agents as 'linkdrop'."
 fi
