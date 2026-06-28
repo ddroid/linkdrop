@@ -2,6 +2,8 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+pub const DEFAULT_DATA_DIR: &str = "/data";
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub url: Option<String>,
@@ -88,5 +90,43 @@ pub fn config_file_path() -> Option<PathBuf> {
 pub fn default_data_dir() -> PathBuf {
     std::env::var("LINKDROP_DATA_DIR")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("./data"))
+        .unwrap_or_else(|_| PathBuf::from(DEFAULT_DATA_DIR))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Mutex;
+
+    use super::*;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn default_data_dir_should_use_stable_absolute_path_when_env_is_unset() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let previous = std::env::var_os("LINKDROP_DATA_DIR");
+        std::env::remove_var("LINKDROP_DATA_DIR");
+
+        assert_eq!(default_data_dir(), PathBuf::from(DEFAULT_DATA_DIR));
+
+        restore_data_dir_env(previous);
+    }
+
+    #[test]
+    fn default_data_dir_should_allow_env_override() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let previous = std::env::var_os("LINKDROP_DATA_DIR");
+        std::env::set_var("LINKDROP_DATA_DIR", "/tmp/linkdrop-test-data");
+
+        assert_eq!(default_data_dir(), PathBuf::from("/tmp/linkdrop-test-data"));
+
+        restore_data_dir_env(previous);
+    }
+
+    fn restore_data_dir_env(previous: Option<std::ffi::OsString>) {
+        match previous {
+            Some(value) => std::env::set_var("LINKDROP_DATA_DIR", value),
+            None => std::env::remove_var("LINKDROP_DATA_DIR"),
+        }
+    }
 }

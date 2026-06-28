@@ -15,10 +15,11 @@ Push HTML files and get a shareable URL at `https://sub.domain.com/<slug>`.
 |----------|---------|----------|
 | `LINKDROP_TOKEN` | random secret | yes |
 | `LINKDROP_URL` | `https://sub.domain.com` | yes |
-| `LINKDROP_DATA_DIR` | `/data` | no (default `/data` in Docker) |
+| `LINKDROP_DATA_DIR` | `/data` | no (default `/data`) |
 | `PORT` | `8080` | no |
 
-Mount a persistent volume at `/data`.
+Mount a persistent volume at `/data`, or set `LINKDROP_DATA_DIR` to another
+stable absolute path that survives VPS reboots and service restarts.
 
 **Dokploy:** deploy from this repo's `Dockerfile`, set domain `sub.domain.com`, expose port 8080, mount volume `/data`.
 

@@ -80,8 +80,8 @@ impl Storage {
         Database::check_not_expired(&record)?;
 
         let path = self.html_dir.join(&record.filename);
-        let content = std::fs::read(&path)
-            .map_err(|_| LinkdropError::NotFound(slug.to_string()))?;
+        let content =
+            std::fs::read(&path).map_err(|_| LinkdropError::NotFound(slug.to_string()))?;
 
         Ok((record, content))
     }
@@ -117,5 +117,39 @@ impl Storage {
         }
 
         Ok(removed)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    use super::*;
+
+    #[test]
+    fn storage_should_keep_pages_after_reopen() {
+        let data_dir = unique_temp_dir();
+        let html = b"<html><body>persist me</body></html>";
+
+        {
+            let storage = Storage::open(data_dir.clone()).unwrap();
+            storage.put(Some("persist-me"), html, false, None).unwrap();
+        }
+
+        let storage = Storage::open(data_dir.clone()).unwrap();
+        let (record, content) = storage.get("persist-me").unwrap();
+
+        assert_eq!(record.slug, "persist-me");
+        assert_eq!(content, html);
+
+        std::fs::remove_dir_all(data_dir).unwrap();
+    }
+
+    fn unique_temp_dir() -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        std::env::temp_dir().join(format!("linkdrop-storage-test-{nanos}"))
     }
 }
